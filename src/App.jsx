@@ -1,91 +1,83 @@
 import { useState } from "react";
 import "./styles.css";
+import { InputTodo } from "./components/InputTodo";
+import { Incomplete } from "./components/Incomplete";
+import { Complete } from "./components/Complete";
 
 export const App = () => {
+  /* 
+  ============state============
+ */
   const [todoText, setTodoText] = useState("");
-  const [incompleteTodos, setIncompleteTodos] = useState([
-    "あああああ",
-    "いいいいい"
-  ]);
-  const [completeTodos, setCompleteTodos] = useState(["ううううう"]);
+  const [incompleteTodos, setIncompleteTodos] = useState([]);
+  const [completeTodos, setCompleteTodos] = useState([]);
 
+  /* 
+  ============関数============
+ */
+  //textarea入力時にstateを更新する関数
   const onChangeTodoText = (event) => {
     setTodoText(event.target.value);
   };
 
+  //追加ボタン押下時の処理
   const onClickAdd = () => {
     if (todoText === "") return;
-    const newTodos = [...incompleteTodos, todoText];
-    setIncompleteTodos(newTodos);
+    //移動処理
+    moveContent(incompleteTodos, todoText, setIncompleteTodos);
     setTodoText("");
   };
 
   //削除ボタン押下時の処理
   const onClickDelete = (index) => {
-    const newTodos = [...incompleteTodos];
-    newTodos.splice(index, 1);
-    setIncompleteTodos(newTodos);
+    //削除処理
+    deleteContent(index, incompleteTodos, setIncompleteTodos);
   };
 
   //完了ボタン押下時の処理
   const onClickComplete = (index) => {
-    const newIncompleteTodos = [...incompleteTodos];
-    newIncompleteTodos.splice(index, 1);
-    setIncompleteTodos(newIncompleteTodos);
-
-    const newCompleteTodos = [...completeTodos, incompleteTodos[index]];
-    setCompleteTodos(newCompleteTodos);
+    //削除処理
+    deleteContent(index, incompleteTodos, setIncompleteTodos);
+    //移動処理
+    moveContent(completeTodos, incompleteTodos[index], setCompleteTodos);
   };
 
   //戻すボタン押下時の処理
   const onClickReturn = (index) => {
-    const newCompleteTodos = [...completeTodos];
-    newCompleteTodos.splice(index, 1);
-    setCompleteTodos(newCompleteTodos);
+    //削除処理
+    deleteContent(index, completeTodos, setCompleteTodos);
+    //移動処理
+    moveContent(incompleteTodos, completeTodos[index], setIncompleteTodos);
+  };
 
-    const newIncompleteTodos = [...incompleteTodos, completeTodos[index]];
-    setIncompleteTodos(newIncompleteTodos);
+  //削除処理の関数
+  const deleteContent = (index, array, func) => {
+    const newTodos = [...array];
+    newTodos.splice(index, 1);
+    func(newTodos);
+  };
+
+  //移動処理の関数
+  const moveContent = (array, content, func) => {
+    const newTodos = [...array, content];
+    func(newTodos);
   };
 
   return (
     <>
-      <div className="input-area">
-        <input
-          placeholder="TODOを入力"
-          value={todoText}
-          onChange={onChangeTodoText}
-        />
-        <button onClick={onClickAdd}>追加</button>
-      </div>
-      <div className="incomplete-area">
-        <p className="title">未完了のTODO</p>
-        <ul>
-          {incompleteTodos.map((todo, index) => {
-            return (
-              <div key={todo} className="list-row">
-                <li>{todo}</li>
-                <button onClick={() => onClickComplete(index)}>完了</button>
-                <button onClick={() => onClickDelete(index)}>削除</button>
-              </div>
-            );
-          })}
-        </ul>
-      </div>
-      <div className="complete-area">
-        <div>
-          <p className="title">完了のTODO</p>
-          <ul>
-            {completeTodos.map((todo, index) => {
-              return (
-                <div key={todo} className="list-row">
-                  <li>{todo}</li>
-                  <button onClick={() => onClickReturn(index)}>戻す</button>
-                </div>
-              );
-            })}
-          </ul>
-        </div>
-      </div>
+      <InputTodo
+        todoText={todoText}
+        onChange={onChangeTodoText}
+        onClick={onClickAdd}
+      />
+
+      <Incomplete
+        incompleteTodos={incompleteTodos}
+        onClickComplete={onClickComplete}
+        onClickDelete={onClickDelete}
+      />
+
+      <Complete completeTodos={completeTodos} onClick={onClickReturn} />
     </>
   );
 };
