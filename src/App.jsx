@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./styles.css";
 
+console.log("this is a test");
+
 export const App = () => {
   const [todoText, setTodoText] = useState("");
   const [incompleteTodos, setIncompleteTodos] = useState([
